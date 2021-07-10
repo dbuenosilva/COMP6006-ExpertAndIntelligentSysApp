@@ -26,7 +26,7 @@ sys.path.append(path)
 #######################################################
 
 #	cv2.IMREAD_COLOR or 1: Read the image in colour mode.
-#	cv2.IMREAD_GRAYSCALE or 0: Read the image in greyscale mode.
+#	cv2.IMREAD_GRAYSCALE or 0: Read the image in grayscale mode.
 #	cv2.IMREAD_UNCHANGED or -1: Read the image with alpha channels.
 
 testingImg = cv2.imread(path + "test.png", cv2.IMREAD_GRAYSCALE)
@@ -41,7 +41,7 @@ if len(testingImg) > 0:
 # Activity 02 - Displaying the test image in an       #
 # window.                                             #
 #######################################################
-
+"""
 cv2.imshow("My test image:", testingImg)
 cv2.waitKey(0) # some issues on MacOS to close the window
 cv2.destroyAllWindows()
@@ -56,9 +56,27 @@ cv2.namedWindow("My test image 2", cv2.WINDOW_NORMAL)
 cv2.imshow("My first test image window", testingImg)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+ """
  
+####################################################### 
+# Activity 04 - Reading an image ‘test.jpg' and       #
+# convert it into grey. Using Matplotlib to display   #
+#                                                     #
+#######################################################
 
+import matplotlib as plt
 
+plt.pyplot.imshow(testingImg, cmap = 'gray', interpolation= 'bicubic')
+#plt.show()
+#plt.imshow(testingImg)
+plt.pyplot.xticks([]), plt.pyplot.yticks([])
+plt.pyplot.show()
+
+####################################################### 
+# Activity 05 - Reading an image ‘test.jpg' and       #
+# convert it into grey. Using Matplotlib to display   #
+#                                                     #
+#######################################################
 
     
     
