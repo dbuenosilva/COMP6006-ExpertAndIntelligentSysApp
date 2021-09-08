@@ -23,19 +23,19 @@ from matplotlib import pyplot as plt
 path = str(pathlib.Path(__file__).resolve().parent) + "/"
 sys.path.append(path)
 
-pathGrayImages = path + "dataset/test/gray/"
+pathImages = path + "dataset/test/gray/"
 
 
 """	                Simple Thresholding attempt
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 ret,thresh1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
 ret,thresh2 = cv2.threshold(img,127,255,cv2.THRESH_BINARY_INV)
 ret,thresh3 = cv2.threshold(img,127,255,cv2.THRESH_TRUNC)
 ret,thresh4 = cv2.threshold(img,127,255,cv2.THRESH_TOZERO)
 ret,thresh5 = cv2.threshold(img,127,255,cv2.THRESH_TOZERO_INV)
 
-#cv2.imwrite(pathGrayImages + fileNameWithoutPNG + "-" + str(number) + ".png", roi)
+#cv2.imwrite(pathImages + fileNameWithoutPNG + "-" + str(number) + ".png", roi)
 
 titles = ['Original Image','BINARY','BINARY_INV','TRUNC','TOZERO','TOZERO_INV']
 images = [img, thresh1, thresh2, thresh3, thresh4, thresh5]
@@ -53,7 +53,7 @@ plt.show()
 
 
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 img = cv2.medianBlur(img,5)
 
 ret,th1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
@@ -79,13 +79,13 @@ plt.show()
 
 """             CLAHE (Contrast Limited Adaptive Histogram Equalization)  attempt
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 
 # create a CLAHE object (Arguments are optional).
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
 cl1 = clahe.apply(img)
 
-#cv2.imwrite(pathGrayImages + '3-0-clahe.png',cl1)
+#cv2.imwrite(pathImages + '3-0-clahe.png',cl1)
 
 
 """
@@ -124,9 +124,9 @@ plt.show()
 
 """                 Histograms Equalization  + Otsu’s Binarization
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 equalisedImg = cv2.equalizeHist(img)
-#cv2.imwrite(pathGrayImages + "3-0-res.png",equalisedImg)
+#cv2.imwrite(pathImages + "3-0-res.png",equalisedImg)
 
 # Otsu's thresholding
 ret2,th2 = cv2.threshold(equalisedImg,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -137,9 +137,9 @@ ret2,th2 = cv2.threshold(equalisedImg,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 """                	Image Filtering (2D Convolution) attempt
 
 
-pathGrayImages = path + "dataset/test/colour/"
+pathImages = path + "dataset/test/colour/"
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 kernel = np.ones((5,5),np.float32)/25
 dst = cv2.filter2D(img,-1,kernel)
 
@@ -154,9 +154,9 @@ plt.show()
 """                	Image Smoothing (Image Blurring) attempt
 
 
-pathGrayImages = path + "dataset/test/colour/"
+pathImages = path + "dataset/test/colour/"
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 
 blur = cv2.blur(img,(5,5))
@@ -169,11 +169,11 @@ plt.show()
 """
 
 """                	Gaussian Filtering (Image Blurring) attempt
-"""
 
-pathGrayImages = path + "dataset/test/colour/"
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+pathImages = path + "dataset/test/colour-original/"
+
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 blur = cv2.GaussianBlur(img,(5,5),0)
 plt.subplot(121),plt.imshow(img),plt.title('Original')
@@ -182,13 +182,14 @@ plt.subplot(122),plt.imshow(blur),plt.title('Gaussian Blurred')
 plt.xticks([]), plt.yticks([])
 plt.show()
 
+"""
 
 """                Median Filtering  (Image Blurring) attempt
 
 
-pathGrayImages = path + "dataset/test/colour/"
+pathImages = path + "dataset/test/colour/"
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 median = cv2.medianBlur(img,5)
 plt.subplot(121),plt.imshow(img),plt.title('Original')
@@ -202,9 +203,9 @@ plt.show()
 
 """                 Bilateral Filtering attempt
 
-pathGrayImages = path + "dataset/test/colour/"
+pathImages = path + "dataset/test/colour/"
 
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 blur = cv2.bilateralFilter(img,9,75,75)
 plt.subplot(121),plt.imshow(img),plt.title('Original')
@@ -220,8 +221,8 @@ plt.show()
 
 """                 Image Gradients attempt
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 laplacian = cv2.Laplacian(img,cv2.CV_64F)
 sobelx = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=5)
@@ -243,8 +244,8 @@ plt.show()
 
 """                 Image Gradients attempt Sobel CV 8U
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 
 # Output dtype = cv2.CV_8U
@@ -274,8 +275,8 @@ plt.show()
 from PIL import Image
 
 # Open the image
-pathGrayImages = path + "dataset/test/colour/"
-img = np.array(Image.open(pathGrayImages + "3-0.png")).astype(np.uint8)
+pathImages = path + "dataset/test/colour/"
+img = np.array(Image.open(pathImages + "3-0.png")).astype(np.uint8)
 
 # Apply grey scale
 gray_img = np.round(0.299 * img[:, :, 0] +0.587 * img[:, :, 1] + 0.114 * img[:, :, 2]).astype(np.uint8)
@@ -337,8 +338,8 @@ plt.show()
 from PIL import Image
 
 # Open the image
-pathGrayImages = path + "dataset/test/colour/"
-img = np.array(Image.open(pathGrayImages + "3-0.png")).astype(np.uint8)
+pathImages = path + "dataset/test/colour/"
+img = np.array(Image.open(pathImages + "3-0.png")).astype(np.uint8)
 
 # Sobel Operator
 h, w, d = img.shape
@@ -396,8 +397,8 @@ plt.show()
 
 
 # Open the image
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
 # Apply grey scale
 grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -424,8 +425,8 @@ plt.show()
 from math import exp, sqrt
 
 # Open the image
-pathGrayImages = path + "dataset/test/colour/"
-image = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+pathImages = path + "dataset/test/colour/"
+image = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 height, width = image.shape
 dft_M = cv2.getOptimalDFTSize(height)
 dft_N = cv2.getOptimalDFTSize(width)
@@ -508,13 +509,13 @@ def main():
     
 #    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
 #    cv2.imshow("Image", image)
-    cv2.imwrite(pathGrayImages + "teste2.png", image)
+    cv2.imwrite(pathImages + "teste2.png", image)
 #    cv2.resizeWindow("Image", 400, 400)
 
 
  #   cv2.namedWindow('DFT', cv2.WINDOW_NORMAL)
  #   cv2.imshow("DFT", np.uint8(img))
-    cv2.imwrite( pathGrayImages + "teste3.png", np.uint8(img))
+    cv2.imwrite( pathImages + "teste3.png", np.uint8(img))
     #cv2.resizeWindow("DFT", 250, 250)
 
 #    cv2.createTrackbar("YL", "Image", y_track, 100, setyl)
@@ -537,8 +538,8 @@ if __name__ == '__main__':
 from math import exp, sqrt
 
 #http://photoandtravels.blogspot.com/2011/04/against-light-photography.html
-pathGrayImages = path + "dataset/test/colour/"
-image = cv2.imread(pathGrayImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
+pathImages = path + "dataset/test/colour/"
+image = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 height, width = image.shape
 dft_M = cv2.getOptimalDFTSize(height)
 dft_N = cv2.getOptimalDFTSize(width)
@@ -619,7 +620,7 @@ def main():
     complex = np.fft.fftshift(complex)
     img = 20 * np.log(cv2.magnitude(complex[:,:,0], complex[:,:,1]))
     
-    cv2.imwrite( pathGrayImages + "3-0-dft.jpg", np.uint8(img))
+    cv2.imwrite( pathImages + "3-0-dft.jpg", np.uint8(img))
  
 
 if __name__ == '__main__':
@@ -631,8 +632,8 @@ if __name__ == '__main__':
 """            Harris Corner Detection attempt
 
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png" )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png" )
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 gray = np.float32(gray)
@@ -644,7 +645,7 @@ dst = cv2.dilate(dst,None)
 # Threshold for an optimal value, it may vary depending on the image.
 img[dst>0.01*dst.max()]=[125,125,0]
 
-cv2.imwrite( pathGrayImages + "3-0-dst.jpg", np.uint8(img))
+cv2.imwrite( pathImages + "3-0-dst.jpg", np.uint8(img))
 
 """ 
 
@@ -652,8 +653,8 @@ cv2.imwrite( pathGrayImages + "3-0-dst.jpg", np.uint8(img))
 """            Finding corner with FAST function 
 
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", 0 )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", 0 )
 
 # Initiate FAST object with default values
 fast = cv2.FastFeatureDetector_create()
@@ -697,8 +698,8 @@ plt.show()
 """            Finding edges with Canny function
 
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", 0 )
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", 0 )
 edges = cv2.Canny(img,100,200)
 
 plt.subplot(121),plt.imshow(img,cmap = 'gray')
@@ -712,35 +713,35 @@ plt.show()
 
 """ erosion
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", 1)
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", 1)
 
 #Activity 12: The following program reads an image and applies the Erosion operation to the image using the 5x5 kernel.
 kernel = np.ones((5,5),np.uint8)
 erosion = cv2.erode(img,kernel,iterations = 1)
 
-cv2.imwrite( pathGrayImages + "3-0-erosion.jpg", erosion)
+cv2.imwrite( pathImages + "3-0-erosion.jpg", erosion)
 
 """
 
 
 """  applies the Dilation operation to the image using the 5x5 kernel.
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", 0)
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", 0)
 kernel = np.ones((5,5),np.uint8)
 dilation = cv2.dilate(img,kernel,iterations = 1)
-cv2.imwrite( pathGrayImages + "3-0-5x5-kernel.jpg", dilation)
+cv2.imwrite( pathImages + "3-0-5x5-kernel.jpg", dilation)
 
 """ 
 
 """    applies the Opening operation to the image using the 5x5 kernel.
 
 
-pathGrayImages = path + "dataset/test/colour/"
-img = cv2.imread(pathGrayImages + "3-0.png", 0)
+pathImages = path + "dataset/test/colour/"
+img = cv2.imread(pathImages + "3-0.png", 0)
 kernel = np.ones((5,5),np.uint8)
 closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-cv2.imwrite( pathGrayImages + "3-0-5x5-kernel.jpg", closing)
+cv2.imwrite( pathImages + "3-0-5x5-kernel.jpg", closing)
 
 """ 
