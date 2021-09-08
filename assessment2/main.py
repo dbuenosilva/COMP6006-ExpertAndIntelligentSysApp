@@ -34,43 +34,90 @@ import os
 import cv2
 import sys
 import pathlib
+import csv
 
 path = str(pathlib.Path(__file__).resolve().parent) + "/"
 sys.path.append(path)
 
-pathImages = path + "dataset/test/colour/"
-pathGrayImages = path + "dataset/test/gray/"
 
-IMG_WIDTH=32
-IMG_HEIGHT=32
+##########################################################################
+# Function: loadDataset 
+# Author: Diego Bueno - d.bueno.da.silva.10@student.scu.edu.au 
+# Date: 07/09/2021
+# Description: Load images dataset to a numpy array
+#              
+# 
+# Parameters: pathImages - a string with the path where images are in.
+#             imageWidth - the imageWidth to resize the image.
+#             imageHeight - the height to resize the image.
+# 
+# Return:     X - a numpy array with a colection of each image in array
+#
+##########################################################################
 
-def create_dataset(img_folder):
+def getFileOriginalName(elem):
+    if len(elem) > 4 and ( elem[len(elem)-3:len(elem)] == "png" or elem[len(elem)-3:len(elem)] == "jpg"):
+        return ( int(elem[0:len(elem)-6]) )
+    return 0
+
+def loadDataset(pathImages, imageWidth, imageHeight ):
    
-    img_data_array=[]
-    class_name=[]
-   
-    for file in os.listdir(img_folder):
-       
+    X = np.array([])
+
+    print("Reading images...")
+    
+    listOfFiles = os.listdir(pathImages)
+
+    listOfFiles.sort(key=getFileOriginalName) # Order the list according to files name to match with label file
+
+    """ 
+    for file in listOfFiles: 
+       print(file)
        if len(file) > 4 and ( file[len(file)-3:len(file)] == "png" or file[len(file)-3:len(file)] == "jpg"):
            
-            image= cv2.imread( img_folder + file, cv2.COLOR_BGR2RGB)
-            image=cv2.resize(image, (IMG_HEIGHT, IMG_WIDTH),interpolation = cv2.INTER_AREA)        
-            image=np.array(image)
+            image = cv2.imread( pathImages + file, cv2.IMREAD_UNCHANGED)
+            image = cv2.resize(image, (imageWidth, imageHeight),interpolation = cv2.INTER_AREA)        
+            image = np.array(image)
             image = image.astype('float32')
             image /= 255 
-            img_data_array.append(image)
-            class_name.append(file)
-
-            
-    return img_data_array, class_name
-
-# extract the image array and class name
-#img_data, class_name =create_dataset(pathImages)
+            X = np.append(X,image)
+    """
+    #print("Done! Loaded all images from " + pathImages + " to X")
+    
+    return(listOfFiles)
 
 
+##########################################################################
+# Function: loadLabels
+# Author: Diego Bueno - d.bueno.da.silva.10@student.scu.edu.au 
+# Date: 08/09/2021
+# Description: Load labes from a CSV file
+# 
+# Parameters: pathImages - a string with the path where images are in.
+# 
+# Return:     Y - a numpy array with a colection labels
+#
+##########################################################################
 
-# load dataset
-(trainX, trainY), (testX, testY) = mnist.load_data()
+def loadLabels(pathFile):
+    
+    with open(pathFile, newline='') as f:
+        reader = csv.reader(f)
+        Y = np.array( list(reader) )
+
+    return(Y)
+
+
+"""
+Training original colour images resizing 32 x 32
+"""
+#trainX = loadDataset(path + "dataset/train/colour-original/", 32, 32)
+#trainY = loadLabels("dataset/train/labels.csv")
+
+mytestX = loadDataset(path + "dataset/test/colour-original/", 32, 32)
+mytestY = loadLabels(path + "dataset/test/labels.csv")
+
+
 
 
 """

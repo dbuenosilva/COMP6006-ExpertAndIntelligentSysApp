@@ -396,9 +396,23 @@ plt.show()
 """                 Laplacian Operator
 
 
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+
+    final_hsv = cv2.merge((h, s, v))
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return img
+
 # Open the image
-pathImages = path + "dataset/test/colour/"
+pathImages = path + "dataset/test/colour-original/"
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
+
+img = increase_brightness(img, value=20)
 
 # Apply grey scale
 grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -409,6 +423,7 @@ blur_img = cv2.GaussianBlur(grey_img, (3, 3), 0)
 # Positive Laplacian Operator
 laplacian = cv2.Laplacian(blur_img, cv2.CV_64F)
 
+
 plt.figure()
 plt.title('Shapes')
 plt.imsave('shapes-lap.png', laplacian, cmap='gray', format='png')
@@ -416,7 +431,6 @@ plt.imshow(laplacian, cmap='gray')
 plt.show()
 
 """
-
 
 
 """                 Homomorphic filter attempt
