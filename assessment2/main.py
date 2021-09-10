@@ -20,14 +20,13 @@ Issue with MacOS:
 
 """
 
-# baseline cnn model for the mnist problem
-from keras.datasets import mnist
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D
-from keras.layers import Dense
-from keras.layers import Flatten
+#import tensorflow as tf # using Tensorflow 2.4
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.utils import to_categorical
 
 import numpy as np
 import os
@@ -57,12 +56,13 @@ sys.path.append(path)
 
 def getFileOriginalName(elem):
     if len(elem) > 4 and ( elem[len(elem)-3:len(elem)] == "png" or elem[len(elem)-3:len(elem)] == "jpg"):
-        return ( int(elem[0:len(elem)-6]) )
+                     # original file name  # sequencial per digit (ROI)
+        return ( int(elem[0:len(elem)-6] + elem[len(elem)-5:len(elem)-4]) )
     return 0
 
 def loadDataset(pathImages, imageWidth, imageHeight ):
    
-    X = np.array([])
+    X = []
 
     print("Reading images...")
     
@@ -70,7 +70,6 @@ def loadDataset(pathImages, imageWidth, imageHeight ):
 
     listOfFiles.sort(key=getFileOriginalName) # Order the list according to files name to match with label file
 
-    """ 
     for file in listOfFiles: 
        print(file)
        if len(file) > 4 and ( file[len(file)-3:len(file)] == "png" or file[len(file)-3:len(file)] == "jpg"):
@@ -78,13 +77,12 @@ def loadDataset(pathImages, imageWidth, imageHeight ):
             image = cv2.imread( pathImages + file, cv2.IMREAD_UNCHANGED)
             image = cv2.resize(image, (imageWidth, imageHeight),interpolation = cv2.INTER_AREA)        
             image = np.array(image)
-            image = image.astype('float32')
-            image /= 255 
-            X = np.append(X,image)
-    """
-    #print("Done! Loaded all images from " + pathImages + " to X")
+            image = image.astype('uint8')
+            X.append(image)
     
-    return(listOfFiles)
+    print("Done! Loaded all images from " + pathImages + " to X")
+    
+    return( np.array(X, np.uint8) )
 
 
 ##########################################################################
@@ -101,54 +99,169 @@ def loadDataset(pathImages, imageWidth, imageHeight ):
 
 def loadLabels(pathFile):
     
+    Y = np.array([])
+    
     with open(pathFile, newline='') as f:
         reader = csv.reader(f)
-        Y = np.array( list(reader) )
+        #Y = np.array( list(reader) )
+        rows =  list(reader) 
+        
+        # converting the list to numpy array
+        for label in rows :
+            Y = np.append(Y,label[0])
+        
+    return(Y.astype('uint8'))
 
-    return(Y)
 
+##########################################################################
+# Function: getAcuracy
+# Author: Diego Bueno - d.bueno.da.silva.10@student.scu.edu.au 
+# Date: 08/09/2021
+# Description: Get acuracy of image recognition using ANN.
+# 
+# Parameters: trainX,trainY,testX,testY
+# 
+# Return:     acc - Accuracy achieved 
+#
+##########################################################################
+
+def getAcuracy(trainX,trainY,testX,testY):
+
+    if len(trainX.shape) >= 4 : # it has thrind dimension with channels
+        instances, width, height, channels = trainX.shape
+    else:   
+        # reshape dataset to have a single channel
+        channels = 0 #gray scale
+        instances, width, height = trainX.shape    
+    
+    print("Loading to the model: instances = " + str(instances) + ", width = " + str(width) + "  height = " + str(height) + ", channels = " + str(channels) + " ")
+    
+    # normalize pixel values
+    trainX = trainX.astype('float32') / 255
+    testX = testX.astype('float32') / 255
+    
+    # one hot encode target values
+    trainY = to_categorical(trainY)
+    testY = to_categorical(testY)
+
+    print("Training the model with ANN...")
+    
+    
+    if channels > 0:
+        shape = (width, height, channels) 
+    else:
+        shape = (width, height) 
+    # define model
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(shape)))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
+    # compile model
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    # fit model
+    model.fit(trainX, trainY, epochs=5, batch_size=128)
+    # evaluate model
+    _, acc = model.evaluate(testX, testY, verbose=0)
+
+    print("Achivied accuracy: " + str(acc))
+
+    return(acc)
+
+
+
+
+results = []
 
 """
 Training original colour images resizing 32 x 32
 """
-#trainX = loadDataset(path + "dataset/train/colour-original/", 32, 32)
-#trainY = loadLabels("dataset/train/labels.csv")
+trainX = loadDataset(path + "dataset/train/colour-original/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
 
-mytestX = loadDataset(path + "dataset/test/colour-original/", 32, 32)
-mytestY = loadLabels(path + "dataset/test/labels.csv")
+testX = loadDataset(path + "dataset/test/colour-original/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
 
-
+results.append( [ "original colour images", str(getAcuracy(trainX,trainY,testX,testY)) ] )
 
 
 """
-# reshape dataset to have a single channel
-width, height, channels = trainX.shape[1], trainX.shape[2], 1
-trainX = trainX.reshape((trainX.shape[0], width, height, channels))
-testX = testX.reshape((testX.shape[0], width, height, channels))
-# normalize pixel values
-trainX = trainX.astype('float32') / 255
-testX = testX.astype('float32') / 255
-# one hot encode target values
+Training colour images applied Gaussian blur feature and resizing 32 x 32
+"""
+trainX = loadDataset(path + "dataset/train/colour-plus-gaussian-blur/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
+
+testX = loadDataset(path + "dataset/test/colour-plus-gaussian-blur/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
+
+results.append( [ "colour images applied Gaussian blur feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
 
 
-trainY = to_categorical(trainY)
-testY = to_categorical(testY)
+"""
+Training gray scale imageges resizing 32 x 32
+"""
+trainX = loadDataset(path + "dataset/train/gray-scale-only/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
 
-# define model
-model = Sequential()
-model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(width, height, channels)))
-model.add(MaxPooling2D((2, 2)))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D((2, 2)))
-model.add(Flatten())
-model.add(Dense(64, activation='relu'))
-model.add(Dense(10, activation='softmax'))
-# compile model
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-# fit model
-model.fit(trainX, trainY, epochs=5, batch_size=128)
-# evaluate model
-_, acc = model.evaluate(testX, testY, verbose=0)
-print(acc)
+testX = loadDataset(path + "dataset/test/gray-scale-only/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
 
-""" 
+results.append( [ "gray scale images", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+
+
+"""
+Training gray scale images applying histograms equalisation and otsu thresholding features
+"""
+trainX = loadDataset(path + "dataset/train/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
+
+testX = loadDataset(path + "dataset/test/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
+
+results.append( [ "gray scale images applying histograms equalisation and otsu thresholding features", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+
+
+"""
+Training gray scale images applying Laplacian operator feature
+"""
+trainX = loadDataset(path + "dataset/train/gray-scale-plus-laplacian-operator/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
+
+testX = loadDataset(path + "dataset/test/gray-scale-plus-laplacian-operator/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
+
+results.append( [ "gray scale images applying Laplacian operator feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+
+
+"""
+Training gray scale images applying only otsu thresholding feature
+"""
+trainX = loadDataset(path + "dataset/train/gray-scale-plus-otsu-thresholding/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
+
+testX = loadDataset(path + "dataset/test/ggray-scale-plus-otsu-thresholding/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
+
+results.append( [ "gray scale images applying only otsu thresholding feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+
+
+"""
+Training gray scale images applying only otsu thresholding feature and inverting the background to white
+"""
+trainX = loadDataset(path + "gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32)
+trainY = loadLabels(path + "dataset/train/labels.csv")
+
+testX = loadDataset(path + "gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32)
+testY = loadLabels(path + "dataset/test/labels.csv")
+
+results.append( [ "gray scale images applying only otsu thresholding feature and inverting the background to white", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+
+    
+print(results)
+
+
+
+

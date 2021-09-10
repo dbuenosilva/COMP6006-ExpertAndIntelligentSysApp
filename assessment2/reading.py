@@ -169,7 +169,6 @@ def readingAndPreProcessingImages(pathImages, matLabFileDatDict):
                     cv2.imwrite(pathColour + fileNameWithoutPNG + "-" + str(number) + ".png", roi)
                     print( "New image file saved: " + pathColour + fileNameWithoutPNG + "-" + str(number) + ".png" )
             
-            
                     print( "Applying Gaussian Filtering (Image Blurring) \n\n")
                     blur = cv2.GaussianBlur(roi,(5,5),0)
                     cv2.imwrite(pathColourPlusGaussian + fileNameWithoutPNG + "-" + str(number) + ".png", blur)
@@ -208,7 +207,6 @@ def readingAndPreProcessingImages(pathImages, matLabFileDatDict):
                     cv2.imwrite(pathGrayPlusOtsuThrInvertingBgd + fileNameWithoutPNG + "-" + str(number) + ".png", otsu)
                     print( "New image file saved: " + pathGrayPlusOtsuThrInvertingBgd + fileNameWithoutPNG + "-" + str(number) + ".png" )
                 
-                
                     print("Saving labels to csv file")
                     saveLabeltoCSV(pathImages + "labels.csv", label)
                 
@@ -223,9 +221,8 @@ def readingAndPreProcessingImages(pathImages, matLabFileDatDict):
     return
 # end of readingAndPreProcessingImages function
 
-
 #                 Reading and pre-processing train dataset                                    
-#readingAndPreProcessingImages(path + "dataset/train/", path + 'dataset/train_digitStruct.mat')
+readingAndPreProcessingImages(path + "dataset/train/", path + 'dataset/train_digitStruct.mat')
 
 #                 Reading and pre-processing test dataset                                    
 readingAndPreProcessingImages(path + "dataset/test/", path + 'dataset/test_digitStruct.mat')

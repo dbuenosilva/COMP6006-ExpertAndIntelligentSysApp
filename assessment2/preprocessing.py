@@ -27,7 +27,7 @@ pathImages = path + "dataset/test/gray/"
 
 
 """	                Simple Thresholding attempt
-
+"""
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 ret,thresh1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
 ret,thresh2 = cv2.threshold(img,127,255,cv2.THRESH_BINARY_INV)
@@ -45,12 +45,12 @@ for i in range(0,6):
     plt.xticks([]),plt.yticks([])
 plt.show()
 
-"""
+
 
 
 
 """	                Adaptive Thresholding attempt
-
+"""
 
 
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
@@ -72,13 +72,13 @@ for i in range(0,4):
     plt.xticks([]),plt.yticks([])
 plt.show()
 
-"""
+
 
 
 
 
 """             CLAHE (Contrast Limited Adaptive Histogram Equalization)  attempt
-
+"""
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 
 # create a CLAHE object (Arguments are optional).
@@ -88,23 +88,24 @@ cl1 = clahe.apply(img)
 #cv2.imwrite(pathImages + '3-0-clahe.png',cl1)
 
 
-"""
+
 
 """                 Otsu’s Binarization simulation
-
+"""
+img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 # global thresholding
-ret1,th1 = cv2.threshold(equalisedImg,127,255,cv2.THRESH_BINARY)
+ret1,th1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
 
 # Otsu's thresholding
-ret2,th2 = cv2.threshold(equalisedImg,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+ret2,th2 = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 # Otsu's thresholding after Gaussian filtering
-blur = cv2.GaussianBlur(equalisedImg,(5,5),0)
+blur = cv2.GaussianBlur(img,(5,5),0)
 ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 # plot all the images and their histograms
-images = [equalisedImg, 0, th1,
-          equalisedImg, 0, th2,
+images = [img, 0, th1,
+          img, 0, th2,
           blur, 0, th3]
 titles = ['Original Noisy Image','Histogram','Global Thresholding (v=127)',
           'Original Noisy Image','Histogram',"Otsu's Thresholding",
@@ -119,10 +120,11 @@ for i in range(0,3):
     plt.title(titles[i*3+2]), plt.xticks([]), plt.yticks([])
 plt.show()
 
-"""
+
 
 
 """                 Histograms Equalization  + Otsu’s Binarization
+"""
 
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_GRAYSCALE )
 equalisedImg = cv2.equalizeHist(img)
@@ -130,12 +132,12 @@ equalisedImg = cv2.equalizeHist(img)
 
 # Otsu's thresholding
 ret2,th2 = cv2.threshold(equalisedImg,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-"""
+
 
 
 
 """                	Image Filtering (2D Convolution) attempt
-
+"""
 
 pathImages = path + "dataset/test/colour/"
 
@@ -148,11 +150,11 @@ plt.xticks([]), plt.yticks([])
 plt.subplot(122),plt.imshow(dst),plt.title('Averaging')
 plt.xticks([]), plt.yticks([])
 plt.show()
-"""
+
 
 
 """                	Image Smoothing (Image Blurring) attempt
-
+"""
 
 pathImages = path + "dataset/test/colour/"
 
@@ -166,10 +168,10 @@ plt.subplot(122),plt.imshow(blur),plt.title('Blurred')
 plt.xticks([]), plt.yticks([])
 plt.show()
 
-"""
+
 
 """                	Gaussian Filtering (Image Blurring) attempt
-
+"""
 
 pathImages = path + "dataset/test/colour-original/"
 
@@ -182,10 +184,10 @@ plt.subplot(122),plt.imshow(blur),plt.title('Gaussian Blurred')
 plt.xticks([]), plt.yticks([])
 plt.show()
 
-"""
+
 
 """                Median Filtering  (Image Blurring) attempt
-
+"""
 
 pathImages = path + "dataset/test/colour/"
 
@@ -198,10 +200,11 @@ plt.subplot(122),plt.imshow(median),plt.title('Median Filtering')
 plt.xticks([]), plt.yticks([])
 plt.show()
 
-"""
+
 
 
 """                 Bilateral Filtering attempt
+"""
 
 pathImages = path + "dataset/test/colour/"
 
@@ -214,13 +217,13 @@ plt.subplot(122),plt.imshow(blur),plt.title('Bilateral Filtering')
 plt.xticks([]), plt.yticks([])
 plt.show()
 
-"""
+
 
 
 
 
 """                 Image Gradients attempt
-
+""" 
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
@@ -239,11 +242,11 @@ plt.title('Sobel Y'), plt.xticks([]), plt.yticks([])
 
 plt.show()
 
-""" 
+
 
 
 """                 Image Gradients attempt Sobel CV 8U
-
+"""
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", cv2.IMREAD_UNCHANGED )
 
@@ -265,12 +268,12 @@ plt.title('Sobel abs(CV_64F)'), plt.xticks([]), plt.yticks([])
 
 plt.show()
 
-"""
+
 
 
 
 """                 Image Gradients	Sobel Edge Detection attempt
-
+"""
 
 from PIL import Image
 
@@ -329,12 +332,12 @@ plt.imsave('3-0-sobel.png', newgradientImage, cmap='gray', format='png')
 plt.imshow(newgradientImage, cmap='gray')
 plt.show()
 
-"""
+
 
 
 """                 Image Gradients	Sobel Edge Detection RGB attempt
 
-
+"""
 from PIL import Image
 
 # Open the image
@@ -389,12 +392,12 @@ plt.imsave('3-0-sobel-rgb.png', rgb_edge, cmap='gray', format='png')
 plt.imshow(rgb_edge, cmap='gray')
 plt.show()
 
-"""
+
 
 
 
 """                 Laplacian Operator
-
+"""
 
 def increase_brightness(img, value=30):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -430,11 +433,11 @@ plt.imsave('shapes-lap.png', laplacian, cmap='gray', format='png')
 plt.imshow(laplacian, cmap='gray')
 plt.show()
 
-"""
+
 
 
 """                 Homomorphic filter attempt
-
+""" 
 
 from math import exp, sqrt
 
@@ -543,11 +546,11 @@ def main():
 if __name__ == '__main__':
     main()
 
-"""
+
 
 
 """                 Homomorphic filter (Discrete Fourier Transform) attempt
-
+"""
 
 from math import exp, sqrt
 
@@ -640,11 +643,11 @@ def main():
 if __name__ == '__main__':
     main()
 
-"""
+
 
 
 """            Harris Corner Detection attempt
-
+"""
 
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png" )
@@ -661,11 +664,11 @@ img[dst>0.01*dst.max()]=[125,125,0]
 
 cv2.imwrite( pathImages + "3-0-dst.jpg", np.uint8(img))
 
-""" 
+
 
 
 """            Finding corner with FAST function 
-
+""" 
 
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", 0 )
@@ -704,13 +707,13 @@ plt.imshow(img3)
 plt.title("without nonmaxSuppression")
 plt.show()
 
-"""
+
 
 
 
 
 """            Finding edges with Canny function
-
+"""
 
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", 0 )
@@ -723,10 +726,10 @@ plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
 
 plt.show()
 
-"""
+
 
 """ erosion
-
+"""
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", 1)
 
@@ -736,26 +739,24 @@ erosion = cv2.erode(img,kernel,iterations = 1)
 
 cv2.imwrite( pathImages + "3-0-erosion.jpg", erosion)
 
-"""
+
 
 
 """  applies the Dilation operation to the image using the 5x5 kernel.
-
+"""
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", 0)
 kernel = np.ones((5,5),np.uint8)
 dilation = cv2.dilate(img,kernel,iterations = 1)
 cv2.imwrite( pathImages + "3-0-5x5-kernel.jpg", dilation)
 
-""" 
+
 
 """    applies the Opening operation to the image using the 5x5 kernel.
-
+""" 
 
 pathImages = path + "dataset/test/colour/"
 img = cv2.imread(pathImages + "3-0.png", 0)
 kernel = np.ones((5,5),np.uint8)
 closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
 cv2.imwrite( pathImages + "3-0-5x5-kernel.jpg", closing)
-
-""" 
