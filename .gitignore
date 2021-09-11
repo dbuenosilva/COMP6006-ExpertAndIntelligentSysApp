@@ -4,3 +4,5 @@
 *.jpg
 *.mat
 assessment2/dataset/test/labels.csv
+assessment2/dataset/train/labels.csv
+assessment2/dbueno10_source_code.zip
