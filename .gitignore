@@ -6,3 +6,5 @@
 #*.csv
 *.txt
 #.pt
+.cache
+.npy
