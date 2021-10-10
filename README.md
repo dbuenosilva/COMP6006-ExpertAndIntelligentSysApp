@@ -6,8 +6,9 @@ pip install opencv-python
 
 # Training
 ## Update the model weights in each 100 images read (bath)
-## Go through the dataset (32402 images) 10 times (epochs) 
-python train.py --img 640 --batch 100 --epochs 10 --data dataset.yaml --weights yolov5l6.pt
+## Go through the dataset (32402 images) 30 times (epochs) 
+## yolov5x.pt has best speed and better performance for 640 images
+python train.py --img 640 --batch 100 --epochs 30 --data dataset.yaml --weights yolov5x.pt --cache disk
 
 # Testing
 python detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source data/images/

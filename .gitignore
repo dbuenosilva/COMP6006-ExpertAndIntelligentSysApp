@@ -6,5 +6,6 @@
 #*.csv
 *.txt
 #.pt
-.cache
-.npy
+*.cache
+*.npy
+system/dataset/train.cache
