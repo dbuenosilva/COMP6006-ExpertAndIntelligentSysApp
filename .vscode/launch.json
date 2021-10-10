@@ -2,14 +2,13 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "totvs_language_debug",
+			"name": "Python: Current File",
+			"type": "python",
 			"request": "launch",
-			"name": "TOTVS Language Debug",
-			"program": "${command:AskForProgramName}",
-			"cwb": "${workspaceFolder}",
-			"smartclientBin": "C:/totvs/bin/smartclient/smartclient.exe",
-			"isMultiSession": true,
-			"enableTableSync": true
+			"program": "${file}",
+			"console": "integratedTerminal",
+			"args": ["--img", "320", "--batch", "16", "--epochs", "10", "--data", "data/dataset.yaml", "--weights", "yolov5m.pt"],
+			"justMyCode": true
 		}
 	]
 }
