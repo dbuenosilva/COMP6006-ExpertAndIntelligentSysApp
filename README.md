@@ -1,18 +1,17 @@
 
 ## Pretrained Checkpoints
-
 pip uninstall -r requirements.txt
 pip install h5py
-/opt/anaconda3/envs/yolov5/bin/python -m pip install opencv-python
-
-
-
-# Testing
-/opt/anaconda3/envs/yolov5/bin/python detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source data/images/
-
+pip install opencv-python
 
 # Training
-/opt/anaconda3/envs/yolov5/bin/python train.py --img 640 --batch 16 --epochs 30 --data dataset.yaml --weights yolov5l6.pt
+## Update the model weights in each 100 images read (bath)
+## Go through the dataset (32402 images) 10 times (epochs) 
+python train.py --img 640 --batch 100 --epochs 10 --data dataset.yaml --weights yolov5l6.pt
+
+# Testing
+python detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source data/images/
+
 
 https://github.com/ultralytics/yolov5/releases
 
@@ -24,4 +23,4 @@ https://colab.research.google.com/drive/1VRk1KUXDUwdSXs9YHVDtig99-JFENlHV#scroll
 
 
 https://wandb.ai/dbuenosilva
-d58fe5c1392f30b275675b4a4bb0578a909fe6e9
+

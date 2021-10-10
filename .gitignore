@@ -3,6 +3,6 @@
 *.jpg
 *.mat
 *.zip
-*.csv
+#*.csv
 *.txt
-*.pt
+#.pt
