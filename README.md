@@ -14,8 +14,7 @@ python train.py --img 640 --batch 10 --epochs 30 --data dataset.yaml --weights y
 
 
 # Testing
-python detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source data/images/
-
+python detect.py --source ../../dataset/test/ --weights runs/train/fluent-wood-39/weights/best.pt --conf 0.25 --save-txt --save-conf --save-crop --nosave
 
 https://github.com/ultralytics/yolov5/releases
 
