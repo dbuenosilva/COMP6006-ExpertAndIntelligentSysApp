@@ -3,12 +3,15 @@
 pip uninstall -r requirements.txt
 pip install h5py
 pip install opencv-python
+pip install pytorch-lightning
+pip install wandb-utils
 
 # Training
 ## Update the model weights in each 100 images read (bath)
 ## Go through the dataset (32402 images) 30 times (epochs) 
 ## yolov5x.pt has best speed and better performance for 640 images
-python train.py --img 640 --batch 100 --epochs 30 --data dataset.yaml --weights yolov5x.pt --cache disk
+python train.py --img 640 --batch 10 --epochs 30 --data dataset.yaml --weights yolov5x.pt
+
 
 # Testing
 python detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source data/images/
