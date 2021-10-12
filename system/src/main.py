@@ -27,13 +27,17 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
+from datetime import datetime
 
 import numpy as np
+import pandas as pd
 import os
 import cv2
 import sys
 import pathlib
 import csv
+import random
 
 path = str(pathlib.Path(__file__).resolve().parent) + "/"
 sys.path.append(path)
@@ -60,27 +64,29 @@ def getFileOriginalName(elem):
         return ( int(elem[0:len(elem)-6] + elem[len(elem)-5:len(elem)-4]) )
     return 0
 
-def loadDataset(pathImages, imageWidth, imageHeight ):
+def loadDataset(pathImages, imageWidth, imageHeight, orderby = False, verbose = False ):
    
     X = []
 
-    print("Reading images...")
+    print("\nReading images...")
     
     listOfFiles = os.listdir(pathImages)
 
-    listOfFiles.sort(key=getFileOriginalName) # Order the list according to files name to match with label file
+    if orderby:
+        listOfFiles.sort(key=getFileOriginalName) # Order the list according to files name to match with label file
 
     for file in listOfFiles: 
-       print(file)
+
        if len(file) > 4 and ( file[len(file)-3:len(file)] == "png" or file[len(file)-3:len(file)] == "jpg"):
-           
+            if verbose:
+                print(file)
             image = cv2.imread( pathImages + file, cv2.IMREAD_UNCHANGED)
             image = cv2.resize(image, (imageWidth, imageHeight),interpolation = cv2.INTER_AREA)        
             image = np.array(image)
             image = image.astype('uint8')
             X.append(image)
     
-    print("Done! Loaded all images from " + pathImages + " to X")
+    print("\nDone! Loaded all images from " + pathImages + " to X \n")
     
     return( np.array(X, np.uint8) )
 
@@ -109,7 +115,7 @@ def loadLabels(pathFile):
         # converting the list to numpy array
         for label in rows :
             Y = np.append(Y,label[0])
-        
+        print("\nLoaded labels from " + pathFile + "\n")   
     return(Y.astype('uint8'))
 
 
@@ -127,14 +133,15 @@ def loadLabels(pathFile):
 
 def getAcuracy(trainX,trainY,testX,testY):
 
-    if len(trainX.shape) >= 4 : # it has thrind dimension with channels
+    if len(trainX.shape) >= 4 : # it has thrid dimension with channels (RGB)
         instances, width, height, channels = trainX.shape
-    else:   
-        # reshape dataset to have a single channel
-        channels = 0 #gray scale
-        instances, width, height = trainX.shape    
+    else: #Gray scale, reshape dataset to have a single channel
+        instances, width, height, channels = (trainX.shape[0], trainX.shape[1], trainX.shape[2], 1)
+        testX = testX.reshape((instances,width, height, channels))
+        trainX = trainX.reshape((instances,width, height, channels))
     
-    print("Loading to the model: instances = " + str(instances) + ", width = " + str(width) + "  height = " + str(height) + ", channels = " + str(channels) + " ")
+
+    print("\nLoading to the model: instances = " + str(instances) + ", width = " + str(width) + "  height = " + str(height) + ", channels = " + str(channels) + " ")
     
     # normalize pixel values
     trainX = trainX.astype('float32') / 255
@@ -144,16 +151,11 @@ def getAcuracy(trainX,trainY,testX,testY):
     trainY = to_categorical(trainY)
     testY = to_categorical(testY)
 
-    print("Training the model with ANN...")
-    
-    
-    if channels > 0:
-        shape = (width, height, channels) 
-    else:
-        shape = (width, height) 
+    print("\nTraining the model with ANN...")
+       
     # define model
     model = Sequential()
-    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(shape)))
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(width, height, channels)))
     model.add(MaxPooling2D((2, 2)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D((2, 2)))
@@ -163,105 +165,173 @@ def getAcuracy(trainX,trainY,testX,testY):
     # compile model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     # fit model
-    model.fit(trainX, trainY, epochs=5, batch_size=128)
+    model.fit(trainX, trainY, epochs=50, batch_size=128)
     # evaluate model
-    _, acc = model.evaluate(testX, testY, verbose=0)
+    loss, accuracy = model.evaluate(testX, testY, verbose=1)
 
-    print("Achivied accuracy: " + str(acc))
+    print("\nAchivied accuracy: " + str(accuracy) + ("      :)" if accuracy > 0.75 else "       :(") )
+    print("Loss: " + str(loss))    
 
-    return(acc)
+    return(loss, accuracy)
 
 
+##########################################################################
+# 
+# main program
+# 
+# Training the model to different image features and plotting the results
+#
+##########################################################################
 
-
-results = []
-
-"""
-Training original colour images resizing 32 x 32
-"""
-trainX = loadDataset(path + "dataset/train/colour-original/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
-
-testX = loadDataset(path + "dataset/test/colour-original/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
-
-results.append( [ "original colour images", str(getAcuracy(trainX,trainY,testX,testY)) ] )
-
+results  = []
+loss     = 0
+accuracy = 0
 
 """
-Training colour images applied Gaussian blur feature and resizing 32 x 32
+### Training original colour images resizing 32 x 32
 """
-trainX = loadDataset(path + "dataset/train/colour-plus-gaussian-blur/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
+trainX = loadDataset(path + "../dataset/train-preprocessed/colour-original/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-testX = loadDataset(path + "dataset/test/colour-plus-gaussian-blur/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
+testX = loadDataset(path + "../dataset/test-preprocessed/colour-original/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
 
-results.append( [ "colour images applied Gaussian blur feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "original colour images", loss, accuracy ] )
 
 
 """
-Training gray scale imageges resizing 32 x 32
+### Training colour images applied Gaussian blur feature and resizing 32 x 32
 """
-trainX = loadDataset(path + "dataset/train/gray-scale-only/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
+trainX = loadDataset(path + "../dataset/train-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-testX = loadDataset(path + "dataset/test/gray-scale-only/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
+testX = loadDataset(path + "../dataset/test-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
 
-results.append( [ "gray scale images", str(getAcuracy(trainX,trainY,testX,testY)) ] )
-
-
-"""
-Training gray scale images applying histograms equalisation and otsu thresholding features
-"""
-trainX = loadDataset(path + "dataset/train/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
-
-testX = loadDataset(path + "dataset/test/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
-
-results.append( [ "gray scale images applying histograms equalisation and otsu thresholding features", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "colour images applied Gaussian blur feature", loss, accuracy ] )
 
 
 """
-Training gray scale images applying Laplacian operator feature
+### Training gray scale imageges resizing 32 x 32
 """
-trainX = loadDataset(path + "dataset/train/gray-scale-plus-laplacian-operator/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
+trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-only/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-testX = loadDataset(path + "dataset/test/gray-scale-plus-laplacian-operator/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
+testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-only/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
 
-results.append( [ "gray scale images applying Laplacian operator feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
-
-
-"""
-Training gray scale images applying only otsu thresholding feature
-"""
-trainX = loadDataset(path + "dataset/train/gray-scale-plus-otsu-thresholding/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
-
-testX = loadDataset(path + "dataset/test/ggray-scale-plus-otsu-thresholding/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
-
-results.append( [ "gray scale images applying only otsu thresholding feature", str(getAcuracy(trainX,trainY,testX,testY)) ] )
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "gray scale images", loss, accuracy ] )
 
 
 """
-Training gray scale images applying only otsu thresholding feature and inverting the background to white
+### Training gray scale images applying histograms equalisation and otsu thresholding features
 """
-trainX = loadDataset(path + "gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32)
-trainY = loadLabels(path + "dataset/train/labels.csv")
+trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-testX = loadDataset(path + "gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32)
-testY = loadLabels(path + "dataset/test/labels.csv")
+testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
 
-results.append( [ "gray scale images applying only otsu thresholding feature and inverting the background to white", str(getAcuracy(trainX,trainY,testX,testY)) ] )
-
-    
-print(results)
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "gray scale images applying histograms equalisation and otsu thresholding features",  loss, accuracy ] )
 
 
+"""
+### Training gray scale images applying Laplacian operator feature
+"""
+trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
+
+testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
+
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "gray scale images applying Laplacian operator feature",  loss, accuracy ] )
+
+"""
+### Training gray scale images applying only otsu thresholding feature
+"""
+trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
+
+testX = loadDataset(path + "../dataset/test-preprocessed/ggray-scale-plus-otsu-thresholding/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
+
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "gray scale images applying only otsu thresholding feature",  loss, accuracy ] )
 
 
+"""
+### Training gray scale images applying only otsu thresholding feature and inverting the background to white
+"""
+trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, True )
+trainY = loadLabels(path + "../dataset/train/labels.csv")
+
+testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, True )
+testY = loadLabels(path + "../dataset/test/labels.csv")
+
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "gray scale images applying only otsu thresholding feature and inverting the background to white",  loss, accuracy ] )
+
+"""
+### Training crops colour images from Yolo5 resizing 32 x 32
+"""
+
+X0 = loadDataset(path + "yolov5/runs/detect/exp6/crops/0/", 32, 32, False, True )
+Y0 = loadLabels(path + "yolov5/runs/detect/exp6/crops/0/labels.csv")
+
+X1 = loadDataset(path + "yolov5/runs/detect/exp6/crops/1/", 32, 32, False, True )
+Y1 = loadLabels(path + "yolov5/runs/detect/exp6/crops/1/labels.csv")
+
+X2 = loadDataset(path + "yolov5/runs/detect/exp6/crops/2/", 32, 32, False, True )
+Y2 = loadLabels(path + "yolov5/runs/detect/exp6/crops/2/labels.csv")
+
+X3 = loadDataset(path + "yolov5/runs/detect/exp6/crops/3/", 32, 32, False, True )
+Y3 = loadLabels(path + "yolov5/runs/detect/exp6/crops/3/labels.csv")
+
+X4 = loadDataset(path + "yolov5/runs/detect/exp6/crops/4/", 32, 32, False, True )
+Y4 = loadLabels(path + "yolov5/runs/detect/exp6/crops/4/labels.csv")
+
+X5 = loadDataset(path + "yolov5/runs/detect/exp6/crops/5/", 32, 32, False, True )
+Y5 = loadLabels(path + "yolov5/runs/detect/exp6/crops/5/labels.csv")
+
+X6 = loadDataset(path + "yolov5/runs/detect/exp6/crops/6/", 32, 32, False, True )
+Y6 = loadLabels(path + "yolov5/runs/detect/exp6/crops/6/labels.csv")
+
+X7 = loadDataset(path + "yolov5/runs/detect/exp6/crops/7/", 32, 32, False, True )
+Y7 = loadLabels(path + "yolov5/runs/detect/exp6/crops/7/labels.csv")
+
+X8 = loadDataset(path + "yolov5/runs/detect/exp6/crops/8/", 32, 32, False, True )
+Y8 = loadLabels(path + "yolov5/runs/detect/exp6/crops/8/labels.csv")
+
+X9 = loadDataset(path + "yolov5/runs/detect/exp6/crops/9/", 32, 32, False, True )
+Y9 = loadLabels(path + "yolov5/runs/detect/exp6/crops/9/labels.csv")
+
+# Concatenating all crops into unique X and y arrays
+X = np.concatenate((X0, X1, X2, X3, X4, X5, X6, X7, X8, X9), axis=0)
+y = np.concatenate((Y0, Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8, Y9), axis=0)
+
+# Spliting into train and test
+[trainX, testX, trainY, testY] = train_test_split(X, y, test_size = 0.2, random_state= 0, shuffle=True )
+
+loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
+results.append( [ "crops colour images from Yolo5", loss, accuracy ] )
+
+
+if len(results):
+    # Create the pandas DataFrame with all results
+    df = pd.DataFrame(results, columns = ['Image Feature', 'Loss', 'Accuracy'] )
+
+    # datetime object containing current date and time
+    now = datetime.now()
+    fileName = now.strftime("%Y-%m-%d_%H%M") # YYYY-MM-DD_HH-MM
+
+    # Exporting results to a CSV file
+    df.to_csv('system/results/' + fileName + '.csv',index=False)
+    print("\nResults saved on " + path + "system/results/" + fileName + ".csv")    
+    # Plotting the results and comparing
+
+print("\nDone!")
