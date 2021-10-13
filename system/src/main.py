@@ -137,9 +137,9 @@ def getAcuracy(trainX,trainY,testX,testY):
         instances, width, height, channels = trainX.shape
     else: #Gray scale, reshape dataset to have a single channel
         instances, width, height, channels = (trainX.shape[0], trainX.shape[1], trainX.shape[2], 1)
-        testX = testX.reshape((instances,width, height, channels))
+        instancesTest = testX.shape[0]        
         trainX = trainX.reshape((instances,width, height, channels))
-    
+        testX = testX.reshape((instancesTest,width, height, channels))    
 
     print("\nLoading to the model: instances = " + str(instances) + ", width = " + str(width) + "  height = " + str(height) + ", channels = " + str(channels) + " ")
     
@@ -319,7 +319,6 @@ y = np.concatenate((Y0, Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8, Y9), axis=0)
 
 loss, accuracy = getAcuracy(trainX,trainY,testX,testY)
 results.append( [ "crops colour images from Yolo5", loss, accuracy ] )
-
 
 if len(results):
     # Create the pandas DataFrame with all results
