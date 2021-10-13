@@ -131,7 +131,9 @@ def loadLabels(pathFile):
 #
 ##########################################################################
 
-def getModel(trainX,trainY,testX,testY,modelFileName):
+def getModel(trainX,trainY,testX,testY,modelFileName = "myModel.h5"):
+
+    modelFileName = path + modelFileName
 
     if len(trainX.shape) >= 4 : # it has thrid dimension with channels (RGB)
         instances, width, height, channels = trainX.shape
