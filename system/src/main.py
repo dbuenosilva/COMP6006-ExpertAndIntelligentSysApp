@@ -133,7 +133,7 @@ def loadLabels(pathFile):
 
 def getModel(trainX,trainY,testX,testY,modelFileName = "myModel.h5"):
 
-    modelFileName = path + modelFileName
+    modelFileName = path + "models/" + modelFileName
 
     if len(trainX.shape) >= 4 : # it has thrid dimension with channels (RGB)
         instances, width, height, channels = trainX.shape
@@ -168,8 +168,8 @@ def getModel(trainX,trainY,testX,testY,modelFileName = "myModel.h5"):
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Stopping early according to myMinDelta to avoid overfitting. Trained model saved at myModelFile
-    myMinDelta  = 0.05 # minimum improvement rate for do not early stop
-    myPatience  = 2   # how many epochs run with improvement lower than myMinDelta     
+    myMinDelta  = 0.025 # minimum improvement rate for do not early stop
+    myPatience  = 3   # how many epochs run with improvement lower than myMinDelta     
     myCallbacks = [EarlyStopping(monitor='accuracy', min_delta=myMinDelta , patience=myPatience, mode='auto'),
                  ModelCheckpoint(filepath=modelFileName, monitor='accuracy', save_best_only=True, verbose=1)]
      
@@ -180,7 +180,7 @@ def getModel(trainX,trainY,testX,testY,modelFileName = "myModel.h5"):
     loss, accuracy = model.evaluate(testX, testY, verbose=1)
 
     print("\nAchivied accuracy: " + str(accuracy) + ("      :)" if accuracy > 0.75 else "       :(") )
-    print("Loss: " + str(loss))    
+    print("Loss: " + str(loss))
 
     # Saving the designed NN
     if modelFileName:
@@ -205,10 +205,10 @@ accuracy = 0
 ### Training original colour images resizing 32 x 32
 """
 try:    
-    trainX = loadDataset(path + "../dataset/train-preprocessed/colour-original/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/colour-original/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/colour-original/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/colour-original/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "colour-original.h5")
@@ -221,10 +221,10 @@ except:
 ### Training colour images applied Gaussian blur feature and resizing 32 x 32
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/colour-plus-gaussian-blur/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "colour-plus-gaussian-blur.h5")
@@ -237,10 +237,10 @@ except:
 ### Training gray scale imageges resizing 32 x 32
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-only/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-only/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-only/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-only/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "gray-scale-only.h5")
@@ -253,10 +253,10 @@ except:
 ### Training gray scale images applying histograms equalisation and otsu thresholding features
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-histograms-equalisation-and-otsu-thresholding/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "gray-scale-plus-histograms-equalisation-and-otsu-thresholding.h5")
@@ -269,10 +269,10 @@ except:
 ### Training gray scale images applying Laplacian operator feature
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-laplacian-operator/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "gray-scale-plus-laplacian-operator.h5")
@@ -285,10 +285,10 @@ except:
 ### Training gray scale images applying only otsu thresholding feature
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-otsu-thresholding/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-otsu-thresholding/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "gray-scale-plus-otsu-thresholding.h5")
@@ -301,10 +301,10 @@ except:
 ### Training gray scale images applying only otsu thresholding feature and inverting the background to white
 """
 try:   
-    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, True )
+    trainX = loadDataset(path + "../dataset/train-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, False )
     trainY = loadLabels(path + "../dataset/train/labels.csv")
 
-    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, True )
+    testX = loadDataset(path + "../dataset/test-preprocessed/gray-scale-plus-otsu-thresholding-inverting-background/", 32, 32, True, False )
     testY = loadLabels(path + "../dataset/test/labels.csv")
 
     loss, accuracy = getModel(trainX,trainY,testX,testY, "gray-scale-plus-otsu-thresholding-inverting-background.h5")
@@ -371,7 +371,7 @@ if len(results):
     fileName = now.strftime("%Y-%m-%d_%H%M") # YYYY-MM-DD_HH-MM
 
     # Exporting results to a CSV file
-    df.to_csv('system/results/' + fileName + '.csv',index=False)
+    df.to_csv('/Users/diego/workspace/spyder/COMP6006-ExpertAndIntelligentSysApp/system/results/' + fileName + '.csv',index=False)
     print("\nResults saved on " + path + "system/results/" + fileName + ".csv")    
     # Plotting the results and comparing
 
